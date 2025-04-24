@@ -1,0 +1,12 @@
+To compile and run the Student Management System project, use the following commands in your project directory:
+
+1. Compile all Java files with JavaFX modules:
+javac --module-path "C:/Users/MARVELOUS HEAVENLY/OneDrive/Desktop/JAVA FX/javafx-sdk-21.0.7/lib" --add-modules javafx.controls,javafx.fxml *.java
+
+2. Run the console-based application:
+java Main
+
+3. To run the GUI application, use the VSCode launch configuration "Launch StudentManagementGUI" or run:
+java --module-path "C:/Users/MARVELOUS HEAVENLY/OneDrive/Desktop/JAVA FX/javafx-sdk-21.0.7/lib" --add-modules javafx.controls,javafx.fxml StudentManagementGUI
+
+Make sure the JavaFX SDK path matches your installation directory.
