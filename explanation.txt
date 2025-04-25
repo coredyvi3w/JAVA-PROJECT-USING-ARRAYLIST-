@@ -1,0 +1,596 @@
+Student Management System - Line-by-Line Code Explanation and Concepts
+
+This document provides a detailed explanation of the Java source files in the project. Each line or block of code is explained explicitly to help you understand the concepts and functionalities used.
+
+---
+
+1. StudentManagementGUI.java
+
+```java
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+```
+- These import statements bring in JavaFX classes needed for building the GUI.
+- `Application` is the base class for JavaFX applications.
+- `Insets` is used for padding/margins.
+- `Scene` represents the content inside a window.
+- `Control` classes like Label, TextField, Button, TextArea are UI components.
+- `GridPane` is a layout manager arranging components in a grid.
+- `Stage` represents the main window.
+
+```java
+public class StudentManagementGUI extends Application {
+```
+- This class declaration shows inheritance: `StudentManagementGUI` extends `Application`.
+- **Inheritance** means `StudentManagementGUI` inherits properties and methods from `Application`.
+- This allows it to be a JavaFX application with lifecycle methods like `start()`.
+
+```java
+    private StudentManagementSystem sms = new StudentManagementSystem();
+```
+- Creates an instance of `StudentManagementSystem` to manage student data.
+- This is **composition**, where one class uses another as a field.
+
+```java
+    @Override
+    public void start(Stage primaryStage) {
+```
+- The `start` method is overridden from `Application`.
+- It is the entry point for JavaFX applications after launch.
+- `primaryStage` is the main window.
+
+```java
+        primaryStage.setTitle("Student Management System");
+```
+- Sets the window title.
+
+```java
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(10));
+        grid.setVgap(8);
+        grid.setHgap(10);
+```
+- Creates a `GridPane` layout.
+- Sets padding (space around edges) and vertical/horizontal gaps between cells.
+
+```java
+        Label nameLabel = new Label("Name:");
+        TextField nameField = new TextField();
+        Label idLabel = new Label("ID:");
+        TextField idField = new TextField();
+        Label courseLabel = new Label("Course:");
+        TextField courseField = new TextField();
+        Label gradeLabel = new Label("Grade:");
+        TextField gradeField = new TextField();
+```
+- Creates labels and text fields for user input.
+- `Label` displays text.
+- `TextField` allows user to enter text.
+
+```java
+        Button addButton = new Button("Add Student");
+        Button displayButton = new Button("Display Students");
+        TextArea outputArea = new TextArea();
+        outputArea.setEditable(false);
+```
+- Creates buttons for actions.
+- `TextArea` displays output; set to non-editable to prevent user input.
+
+```java
+        grid.add(nameLabel, 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(idLabel, 0, 1);
+        grid.add(idField, 1, 1);
+        grid.add(courseLabel, 0, 2);
+        grid.add(courseField, 1, 2);
+        grid.add(gradeLabel, 0, 3);
+        grid.add(gradeField, 1, 3);
+        grid.add(addButton, 0, 4);
+        grid.add(displayButton, 1, 4);
+        grid.add(outputArea, 0, 5, 2, 1);
+```
+- Adds components to the grid at specified column and row indices.
+- The last line spans the outputArea across 2 columns and 1 row.
+
+```java
+        addButton.setOnAction(e -> {
+            try {
+                String name = nameField.getText();
+                String id = idField.getText();
+                String course = courseField.getText();
+                double grade = Double.parseDouble(gradeField.getText());
+                sms.addStudent(name, id, course, grade);
+                outputArea.setText("Student added successfully!");
+                clearFields(nameField, idField, courseField, gradeField);
+            } catch (IllegalArgumentException ex) {
+                outputArea.setText("Error: " + ex.getMessage());
+            }
+        });
+```
+- Sets an event handler for the Add button using a lambda expression.
+- Reads input from text fields.
+- Parses grade from String to double.
+- Calls `addStudent` method of `StudentManagementSystem`.
+- Updates outputArea with success or error message.
+- Calls `clearFields` to reset input fields.
+- **Exception handling** is used to catch invalid inputs.
+
+```java
+        displayButton.setOnAction(e -> {
+            StringBuilder sb = new StringBuilder();
+            sms.displayStudents(); // Prints to console for simplicity
+            sms.getStudents().forEach(s -> sb.append(s.toString()).append("\n"));
+            outputArea.setText(sb.length() == 0 ? "No students registered." : sb.toString());
+        });
+```
+- Event handler for Display button.
+- Uses a StringBuilder to accumulate student info.
+- Calls `getStudents()` and appends each student's string representation.
+- Updates outputArea with the list or a message if empty.
+
+```java
+        Scene scene = new Scene(grid, 400, 400);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+```
+- Creates a Scene with the grid layout and sets it on the primary stage.
+- Shows the window.
+
+```java
+    private void clearFields(TextField... fields) {
+        for (TextField field : fields) {
+            field.clear();
+        }
+    }
+```
+- Helper method to clear multiple text fields.
+- Uses varargs to accept any number of TextField arguments.
+
+```java
+    public static void main(String[] args) {
+        launch(args);
+    }
+```
+- Main method to launch the JavaFX application.
+- Calls `launch` inherited from `Application`.
+
+---
+
+2. ConsoleInterface.java
+
+```java
+import java.util.Scanner;
+```
+- Imports Scanner class for reading input from the console.
+
+```java
+public class ConsoleInterface {
+    private final StudentManagementSystem sms;
+    private final Scanner scanner;
+```
+- Declares the class.
+- Defines two private final fields: `sms` for managing students, and `scanner` for input.
+
+```java
+    public ConsoleInterface(StudentManagementSystem sms) {
+        this.sms = sms;
+        this.scanner = new Scanner(System.in);
+    }
+```
+- Constructor initializes the fields.
+- `Scanner(System.in)` reads input from the console.
+
+```java
+    public void start() {
+        while (true) {
+            System.out.println("\n=== Student Management System ===");
+            System.out.println("1. Add Student");
+            System.out.println("2. Update Student");
+            System.out.println("3. Delete Student");
+            System.out.println("4. Display All Students");
+            System.out.println("5. Exit");
+            System.out.print("Choose an option: ");
+```
+- Starts an infinite loop displaying a menu.
+- Prints options for the user.
+
+```java
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                continue;
+            }
+```
+- Reads user input as a string.
+- Tries to parse it to an integer.
+- Catches invalid input and prompts again.
+
+```java
+            switch (choice) {
+                case 1:
+                    addStudent();
+                    break;
+                case 2:
+                    updateStudent();
+                    break;
+                case 3:
+                    deleteStudent();
+                    break;
+                case 4:
+                    sms.displayStudents();
+                    break;
+                case 5:
+                    System.out.println("Exiting...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Try again.");
+            }
+        }
+    }
+```
+- Uses switch-case to call methods based on user choice.
+- Case 5 exits the loop and method.
+- Default handles invalid options.
+
+```java
+    private void addStudent() {
+        try {
+            System.out.print("Enter name: ");
+            String name = scanner.nextLine();
+            System.out.print("Enter ID: ");
+            String id = scanner.nextLine();
+            System.out.print("Enter course: ");
+            String course = scanner.nextLine();
+            System.out.print("Enter grade: ");
+            double grade = Double.parseDouble(scanner.nextLine());
+            sms.addStudent(name, id, course, grade);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+```
+- Prompts user for student details.
+- Parses grade to double.
+- Calls `addStudent` in `StudentManagementSystem`.
+- Catches and prints errors.
+
+```java
+    private void updateStudent() {
+        try {
+            System.out.print("Enter student ID to update: ");
+            String id = scanner.nextLine();
+            System.out.print("Enter new name (or press Enter to skip): ");
+            String name = scanner.nextLine();
+            System.out.print("Enter new course (or press Enter to skip): ");
+            String course = scanner.nextLine();
+            System.out.print("Enter new grade (or -1 to skip): ");
+            double grade = Double.parseDouble(scanner.nextLine());
+            sms.updateStudent(id, name.isEmpty() ? null : name, course.isEmpty() ? null : course, grade);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+```
+- Prompts for student ID and new details.
+- Allows skipping fields by entering empty or -1.
+- Calls `updateStudent` with appropriate parameters.
+
+```java
+    private void deleteStudent() {
+        try {
+            System.out.print("Enter student ID to delete: ");
+            String id = scanner.nextLine();
+            sms.deleteStudent(id);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+```
+- Prompts for student ID to delete.
+- Calls `deleteStudent`.
+- Handles errors.
+
+---
+
+3. Main.java
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        StudentManagementSystem sms = new StudentManagementSystem();
+```
+- Main class and method.
+- Creates instance of `StudentManagementSystem`.
+
+```java
+        ConsoleInterface console = new ConsoleInterface(sms);
+        console.start();
+```
+- Creates and starts console interface.
+
+```java
+        Thread user1 = new Thread(() -> {
+            try {
+                sms.addStudent("Alice", "S001", "Math", 85.5);
+            } catch (IllegalArgumentException e) {
+                System.out.println("User1 Error: " + e.getMessage());
+            }
+        });
+```
+- Creates a thread simulating user1 adding a student.
+- Uses lambda expression for Runnable.
+
+```java
+        Thread user2 = new Thread(() -> {
+            try {
+                sms.addStudent("Bob", "S002", "Physics", 90.0);
+            } catch (IllegalArgumentException e) {
+                System.out.println("User2 Error: " + e.getMessage());
+            }
+        });
+```
+- Creates a thread simulating user2 adding a student.
+
+```java
+        user1.start();
+        user2.start();
+```
+- Starts both threads.
+
+```java
+        try {
+            user1.join();
+            user2.join();
+        } catch (InterruptedException e) {
+            System.err.println("Thread interrupted: " + e.getMessage());
+        }
+```
+- Waits for both threads to finish.
+- Handles interruption exceptions.
+
+```java
+        // Launch GUI (uncomment to run)
+        // StudentManagementGUI.main(args);
+    }
+}
+```
+- Commented code to launch GUI instead of console.
+
+---
+
+4. Student.java
+
+```java
+public class Student {
+    private String name;
+    private String id;
+    private String course;
+    private double grade;
+```
+- Class representing a student.
+- Private fields for encapsulation.
+
+```java
+    public Student(String name, String id, String course, double grade) {
+        this.name = name;
+        this.id = id;
+        this.course = course;
+        this.grade = grade;
+    }
+```
+- Constructor initializing fields.
+
+```java
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+```
+- Getter and setter for name.
+
+```java
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+```
+- Getter and setter for id.
+
+```java
+    public String getCourse() {
+        return course;
+    }
+    public void setCourse(String course) {
+        this.course = course;
+    }
+```
+- Getter and setter for course.
+
+```java
+    public double getGrade() {
+        return grade;
+    }
+    public void setGrade(double grade) {
+        this.grade = grade;
+    }
+```
+- Getter and setter for grade.
+
+```java
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", id='" + id + '\'' +
+                ", course='" + course + '\'' +
+                ", grade=" + grade +
+                '}';
+    }
+}
+```
+- Overridden toString method for readable output.
+
+---
+
+5. StudentManagementSystem.java
+
+```java
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+```
+- Imports for file I/O and collections.
+
+```java
+public class StudentManagementSystem {
+    private List<Student> students;
+    private final String fileName = "students.txt";
+```
+- Class managing students.
+- Uses List to store Student objects.
+- File name for persistence.
+
+```java
+    public StudentManagementSystem() {
+        students = new ArrayList<>();
+        loadStudentsFromFile();
+    }
+```
+- Constructor initializes list and loads data from file.
+
+```java
+    public synchronized void addStudent(String name, String id, String course, double grade) throws IllegalArgumentException {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
+        if (id == null || id.trim().isEmpty() || getStudentById(id) != null) {
+            throw new IllegalArgumentException("Invalid or duplicate ID");
+        }
+        if (course == null || course.trim().isEmpty()) {
+            throw new IllegalArgumentException("Course cannot be empty");
+        }
+        if (grade < 0 || grade > 100) {
+            throw new IllegalArgumentException("Grade must be between 0 and 100");
+        }
+        Student student = new Student(name, id, course, grade);
+        students.add(student);
+        saveStudentsToFile();
+        System.out.println("Student added: " + student);
+    }
+```
+- Adds a student with validation.
+- Throws exceptions for invalid input.
+- Synchronized to prevent concurrent modification issues.
+- Saves updated list to file.
+
+```java
+    public Student getStudentById(String id) {
+        return students.stream()
+                .filter(s -> s.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+```
+- Finds student by ID using streams and lambda.
+
+```java
+    public synchronized void updateStudent(String id, String name, String course, double grade) {
+        Student student = getStudentById(id);
+        if (student == null) {
+            throw new IllegalArgumentException("Student not found");
+        }
+        if (name != null && !name.trim().isEmpty()) student.setName(name);
+        if (course != null && !course.trim().isEmpty()) student.setCourse(course);
+        if (grade >= 0 && grade <= 100) student.setGrade(grade);
+        saveStudentsToFile();
+        System.out.println("Student updated: " + student);
+    }
+```
+- Updates student details with validation.
+- Saves changes to file.
+
+```java
+    public synchronized void deleteStudent(String id) {
+        Student student = getStudentById(id);
+        if (student == null) {
+            throw new IllegalArgumentException("Student not found");
+        }
+        students.remove(student);
+        saveStudentsToFile();
+        System.out.println("Student deleted: " + student);
+    }
+```
+- Deletes student by ID.
+- Saves changes.
+
+```java
+    public void displayStudents() {
+        if (students.isEmpty()) {
+            System.out.println("No students registered.");
+        } else {
+            students.forEach(System.out::println);
+        }
+    }
+```
+- Displays all students or a message if none.
+
+```java
+    private synchronized void saveStudentsToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            for (Student s : students) {
+                writer.write(s.getName() + "," + s.getId() + "," + s.getCourse() + "," + s.getGrade());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error saving to file: " + e.getMessage());
+        }
+    }
+```
+- Saves student data to file in CSV format.
+- Uses try-with-resources for automatic resource management.
+
+```java
+    private synchronized void loadStudentsFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 4) {
+                    String name = parts[0];
+                    String id = parts[1];
+                    String course = parts[2];
+                    double grade = Double.parseDouble(parts[3]);
+                    students.add(new Student(name, id, course, grade));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No existing student data found. Starting fresh.");
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error loading from file: " + e.getMessage());
+        }
+    }
+```
+- Loads student data from file.
+- Handles file not found and parsing errors.
+
+```java
+    public List<Student> getStudents() {
+        return students;
+    }
+}
+```
+- Getter for the student list.
+
+---
+
+This detailed line-by-line explanation covers all Java files, explaining syntax, concepts like inheritance, encapsulation, exception handling, multithreading, file I/O, event-driven programming, and more. This should help you understand the project thoroughly.
